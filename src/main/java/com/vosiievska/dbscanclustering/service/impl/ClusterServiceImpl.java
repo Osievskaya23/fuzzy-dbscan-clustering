@@ -4,8 +4,7 @@ import com.vosiievska.dbscanclustering.entity.Cluster;
 import com.vosiievska.dbscanclustering.entity.Vehicle;
 import com.vosiievska.dbscanclustering.service.ClusterService;
 import com.vosiievska.dbscanclustering.service.VehicleService;
-import java.util.OptionalDouble;
-import java.util.Set;
+import java.util.Comparator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,40 +19,22 @@ public class ClusterServiceImpl implements ClusterService {
 
         cluster.init();
         String clusterInitResult = String
-            .format("Cluster %s -> %s%s%s%s", cluster.getId(), StringUtils.center("mean = " + cluster.getMean(), 30),
-                StringUtils.center("standard deviation = " + cluster.getStandardDeviation() + ";", 30),
-                StringUtils.center("max received message power = " + cluster.getMaxReceivedMessagePower() + ";", 30),
-                StringUtils.center("min received message power = " + cluster.getMinReceivedMessagePower() + ";", 30));
+            .format("Cluster %s -> %s%s%s%s", cluster.getId(), StringUtils.center("mean = " + cluster.getMean(), 20),
+                StringUtils.center("standard deviation = " + cluster.getStandardDeviation() + ";", 40),
+                StringUtils.center("max received message power = " + cluster.getMaxReceivedMessagePower() + ";", 40),
+                StringUtils.center("min received message power = " + cluster.getMinReceivedMessagePower() + ";", 40));
 
         log.info(clusterInitResult);
 
         cluster.getVehicles().forEach(v -> vehicleService.getFitFactor(v, cluster));
     }
 
-    private double getMean(Set<Vehicle> neighbors) {
-        log.debug("Calculate cluster mean.");
-        OptionalDouble mean = neighbors.stream().mapToDouble(Vehicle::getSpeed).average();
-        if (mean.isPresent()) {
-            return mean.getAsDouble();
-        } else {
-            log.error("Mean calculation problems");
-            throw new NullPointerException();
-        }
-    }
-
-    private double getStandardDeviation(Set<Vehicle> neighbors) {
-        log.debug("Calculate cluster standard deviation.");
-        return getStandardDeviation(neighbors, getMean(neighbors));
-    }
-
-    private double getStandardDeviation(Set<Vehicle> neighbors, double mean) {
-        log.debug("Calculate cluster standard deviation.");
-        double sum = neighbors.stream().mapToDouble(n -> Math.pow((n.getSpeed() - mean), 2)).sum();
-        return Math.sqrt(sum / (neighbors.size() - 1));
-    }
-
-    private double getReceivedMessagePower(Vehicle vehicle) {
-        log.debug("Calculate received message power.");
-        return vehicle.getP_th() + vehicle.getG() - vehicle.getL();
+    @Override
+    public void performElections(Cluster<Vehicle> cluster) {
+        log.info("Cluster {}. Perform cluster head election.", cluster.getId());
+        Vehicle clusterHead = cluster.getVehicles().stream()
+            .min(Comparator.comparing(v -> v.getFunction().getFitFactor()))
+            .orElseThrow();
+        cluster.setClusterHead(clusterHead);
     }
 }

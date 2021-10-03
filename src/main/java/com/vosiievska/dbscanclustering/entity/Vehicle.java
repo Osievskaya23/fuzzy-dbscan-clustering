@@ -1,5 +1,8 @@
 package com.vosiievska.dbscanclustering.entity;
 
+import static com.vosiievska.dbscanclustering.utils.Utils.getDecimalFormater;
+
+import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -21,10 +24,11 @@ public class Vehicle implements Clusterable {
     private double x;
     private double y;
     private double speed; // [22 -  30 m/s] could be negative due to movement direction
-    private int sensitivity; // [0-100 dB] Sv: sensitivity of the vehicle
+    private double sensitivity; // [0-100 dB] Sv: sensitivity of the vehicle
     private double p_th; // [0-100 dB] transmitter output power
     private double g; // [0-100 dB] total transmitter and receiver antenna gain
     private double l; // [0-100 dB] total transmitter;
+    private VehicleFunction function;
     private Set<Vehicle> neighbors;
 
     public void setNeighbors(Set<Vehicle> neighbors) {
@@ -58,13 +62,14 @@ public class Vehicle implements Clusterable {
     @Override
     public String toString() {
         String format = "\n%s%s%s%s%s%s%s%s";
+        DecimalFormat df = getDecimalFormater();
         return String.format(format, StringUtils.center("Vehicle " + id, 20),
-            StringUtils.center("x = " + this.x + ";", 20),
-            StringUtils.center("y = " + this.y + ";", 20),
-            StringUtils.center("speed = " + this.speed + ";", 20),
-            StringUtils.center("sensitivity = " + this.sensitivity + ";", 20),
-            StringUtils.center("p_th = " + this.p_th + ";", 20),
-            StringUtils.center("g = " + this.g + ";", 20),
-            StringUtils.center("l = " + this.l + ";", 20));
+            StringUtils.center("x = " + df.format(this.x) + ";", 20),
+            StringUtils.center("y = " + df.format(this.y) + ";", 20),
+            StringUtils.center("speed = " + df.format(this.speed) + ";", 20),
+            StringUtils.center("sensitivity = " + df.format(this.sensitivity) + ";", 20),
+            StringUtils.center("p_th = " + df.format(this.p_th) + ";", 20),
+            StringUtils.center("g = " + df.format(this.g) + ";", 20),
+            StringUtils.center("l = " + df.format(this.l) + ";", 20));
     }
 }

@@ -16,12 +16,13 @@ public class FuzzyClustering {
 
     private static final int MIN_VEHICLE_SPEED_RANGE = 22;
     private static final int MAX_VEHICLE_SPEED_RANGE = 30;
+    private static final int MEAN_POWER_RANGE = -50;
+    private static final int STANDARD_DEVIATION_POWER_RANGE = -30;
     private static final int MIN_POWER_RANGE = 0;
     private static final int MAX_POWER_RANGE = 100;
 
     public List<Vehicle> vehicles;
     public ArrayList<ArrayList<Float>> clusterCenters; // 0 -> x; 1 -> y
-    //    public ArrayList<Vehicle> clusterCenters;
     private float[][] u;  // u ^ (k + 1)
     private float[][] u_pre; // u ^ k
     private int clusterCount;

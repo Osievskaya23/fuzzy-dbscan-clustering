@@ -8,7 +8,11 @@ import com.vosiievska.dbscanclustering.service.impl.ClusterServiceImpl;
 import com.vosiievska.dbscanclustering.service.impl.NetworkGraphServiceImpl;
 import com.vosiievska.dbscanclustering.service.response.DBSCANResponse;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.DefaultGraph;
 
+@Slf4j
 public class Test {
 
     /**
@@ -32,5 +36,26 @@ public class Test {
         List<Cluster<Vehicle>> clusters = networkService.computeClusterHeads(dbscanResponse, 100);
 
         clusters.forEach(c -> clusterService.calculateFitFactor(c));
+        clusters.forEach(c -> clusterService.performElections(c));
+
+        DefaultGraph graph = new DefaultGraph("Result graph");
+        graph.display();
+
+        log.info("Print cluster members.");
+        for (Cluster cluster : clusters) {
+            for (Vehicle vehicle : (List<Vehicle>) cluster.getVehicles()) {
+                Node node = graph.addNode(Integer.toString(vehicle.getId()));
+                node.addAttribute("ui.frozen");
+                node.setAttribute("ui.style", cluster.getNodeStylistic());
+                node.setAttribute("x", vehicle.getX());
+                node.setAttribute("y", vehicle.getY());
+
+                if (((Vehicle) cluster.getClusterHead()).getId() == vehicle.getId()) {
+                    node.setAttribute("ui.label", "CH-" + vehicle.getId());
+                } else {
+                    node.setAttribute("ui.label", vehicle.getId());
+                }
+            }
+        }
     }
 }

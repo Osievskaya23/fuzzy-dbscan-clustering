@@ -47,7 +47,7 @@ public class Cluster<T extends Clusterable> implements Serializable {
     public void init() {
         this.mean = this.points.stream().mapToDouble(p -> ((Vehicle) p).getSpeed()).average().getAsDouble();
         double sum = this.points.stream().mapToDouble(p -> Math.pow((((Vehicle) p).getSpeed() - mean), 2)).sum();
-        this.standardDeviation = Math.sqrt(sum / (this.points.size() - 1));
+        this.standardDeviation = Math.sqrt(sum / this.points.size());
 
         List<Double> neighborMessagePower = this.points.stream()
             .map(p -> (Vehicle) p)
